@@ -2,11 +2,11 @@ package main
 
 import (
 	"chose-course/common/logger"
+	"chose-course/common/natsclient"
 	"chose-course/common/utils"
 	"chose-course/config"
 	"chose-course/service"
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
@@ -36,7 +36,8 @@ func main() {
 	utils.Must(err)
 	db := initDB(cfg)
 	redisClient := initRedis(cfg)
-	server := service.InitServer(log, db, redisClient, cfg.Server.HttpListen)
+	natsClient := natsclient.NewNatsClient("Course", cfg.NATS.URL, log)
+	server := service.InitServer(log, db, redisClient, natsClient, cfg.Server.HttpListen)
 	server.Start()
 	utils.WaitClose(log, func() {
 		server.Stop()
@@ -44,7 +45,7 @@ func main() {
 	})
 }
 
-func initDB(cfg *config.Config) *sql.DB {
+func initDB(cfg *config.Config) *gorm.DB {
 	// 构建 DSN 连接字符串
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.DBName)
@@ -64,7 +65,7 @@ func initDB(cfg *config.Config) *sql.DB {
 	}
 	sqlDB.SetMaxOpenConns(cfg.Database.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(cfg.Database.MaxIdleConns)
-	return sqlDB
+	return db
 }
 
 func initRedis(cfg *config.Config) *redis.Client {

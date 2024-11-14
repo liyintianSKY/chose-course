@@ -1,28 +1,48 @@
 package service
 
 import (
-	"database/sql"
+	"chose-course/common/natsclient"
+	course_server "chose-course/service/course-server"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"net/http"
 )
 
 type BaseService struct {
 	logger      *zap.Logger
-	db          *sql.DB
+	db          *gorm.DB
 	redisClient *redis.Client
 	httpMux     *http.ServeMux
 	nbServer    *nbhttp.Server
+	nc          *natsclient.NatsClient
 }
 
-func InitServer(log *zap.Logger, db *sql.DB, redis *redis.Client, httpListen string) *BaseService {
+func (this_ *BaseService) SQlDb() *gorm.DB {
+	return this_.db
+}
+
+func (this_ *BaseService) RedisClient() *redis.Client {
+	return this_.redisClient
+}
+
+func (this_ *BaseService) Mux() *http.ServeMux {
+	return this_.httpMux
+}
+
+func (this_ *BaseService) NatsClient() *natsclient.NatsClient {
+	return this_.nc
+}
+
+func InitServer(log *zap.Logger, db *gorm.DB, redis *redis.Client, nc *natsclient.NatsClient, httpListen string) *BaseService {
 	s := &BaseService{
 		logger:      log,
 		db:          db,
 		redisClient: redis,
 		httpMux:     &http.ServeMux{},
 		nbServer:    httpServer(httpListen),
+		nc:          nc,
 	}
 	return s
 }
@@ -51,10 +71,5 @@ func httpServer(httpListen string) *nbhttp.Server {
 }
 
 func (this_ *BaseService) Route() {
-	this_.RouterModel()
-	this_.RouterFunc()
+	course_server.NewService(this_, this_.logger).Router()
 }
-
-func (this_ *BaseService) RouterModel() {}
-
-func (this_ *BaseService) RouterFunc() {}
