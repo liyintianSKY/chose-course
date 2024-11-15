@@ -2,7 +2,7 @@ package course_server
 
 import (
 	"chose-course/common/utils"
-	"chose-course/module"
+	"chose-course/models"
 	"chose-course/service"
 	"chose-course/service/course-server/api"
 	"go.uber.org/zap"
@@ -27,7 +27,7 @@ func (this_ *Service) Router() {
 }
 
 func (this_ *Service) routerModel() {
-	utils.Must(this_.svc.SQlDb().AutoMigrate(&module.Student{}))
+	utils.Must(this_.svc.SQlDb().AutoMigrate(&models.Student{}))
 }
 
 func (this_ *Service) routerFunc() {

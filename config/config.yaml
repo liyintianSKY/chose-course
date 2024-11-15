@@ -26,3 +26,7 @@ logging:
 
 metrics:
   prometheus_port: 9090
+
+
+# 配置学生每学期最多能选择的课程数
+max_courses_per_student: 5  # 每个学生最多选择5门课程

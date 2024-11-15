@@ -28,4 +28,6 @@ type Config struct {
 	Metrics struct {
 		PrometheusPort int `mapstructure:"prometheus_port"`
 	}
+
+	MaxCoursesPerStudent int `mapstructure:"max_courses_per_student"`
 }
