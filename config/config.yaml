@@ -17,7 +17,7 @@ redis:
   dial_time_out : 2000
 
 nats:
-  url: "nats://localhost:4222"  # NATS 服务器地址
+  url: "nats://localhost:4332"  # NATS 服务器地址
 
 
 logging:

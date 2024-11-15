@@ -1,75 +1,36 @@
 package service
 
 import (
+	"chose-course/base-server"
 	"chose-course/common/natsclient"
-	course_server "chose-course/service/course-server"
-	"github.com/lesismal/nbio/nbhttp"
+	courseserver "chose-course/service/course-server"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"net/http"
 )
 
-type BaseService struct {
-	logger      *zap.Logger
-	db          *gorm.DB
-	redisClient *redis.Client
-	httpMux     *http.ServeMux
-	nbServer    *nbhttp.Server
-	nc          *natsclient.NatsClient
+type Service struct {
+	baseServer *base_server.BaseService
+	log        *zap.Logger
 }
 
-func (this_ *BaseService) SQlDb() *gorm.DB {
-	return this_.db
-}
-
-func (this_ *BaseService) RedisClient() *redis.Client {
-	return this_.redisClient
-}
-
-func (this_ *BaseService) Mux() *http.ServeMux {
-	return this_.httpMux
-}
-
-func (this_ *BaseService) NatsClient() *natsclient.NatsClient {
-	return this_.nc
-}
-
-func InitServer(log *zap.Logger, db *gorm.DB, redis *redis.Client, nc *natsclient.NatsClient, httpListen string) *BaseService {
-	s := &BaseService{
-		logger:      log,
-		db:          db,
-		redisClient: redis,
-		httpMux:     &http.ServeMux{},
-		nbServer:    httpServer(httpListen),
-		nc:          nc,
+func InitServer(log *zap.Logger, db *gorm.DB, redis *redis.Client, nc *natsclient.NatsClient, httpListen string) *Service {
+	s := &Service{
+		baseServer: base_server.InitBaseServer(log, db, redis, nc, httpListen),
 	}
 	return s
 }
 
-func (this_ *BaseService) Start() {
-	this_.Route()
-	this_.nbServer.Handler = this_.httpMux
-	err := this_.nbServer.Start()
-	if err != nil {
-		panic(err)
-	}
+func (this_ *Service) RegisterSubModule() {
+	courseserver.NewService(this_.baseServer, this_.log).Router()
 }
 
-func (this_ *BaseService) Stop() {
-	this_.nbServer.Stop()
-	//this_.nc.Close()
+func (this_ *Service) Start() {
+	this_.baseServer.StartHttp()
 }
 
-func httpServer(httpListen string) *nbhttp.Server {
-	return nbhttp.NewServer(nbhttp.Config{
-		Name:    "course-http",
-		Network: "tcp",
-		//TLSConfig: tlsC,
-		Addrs: []string{httpListen},
-	})
-}
-
-func (this_ *BaseService) Route() {
-	course_server.NewService(this_, this_.logger).Router()
+func (this_ *Service) Stop() {
+	this_.baseServer.StopHttp()
+	this_.baseServer.NatsClient().Close()
+	this_.baseServer.NatsClient().Shutdown()
 }
