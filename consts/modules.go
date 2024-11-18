@@ -1,7 +1,7 @@
 package consts
 
-type ModulesCode int32
+type ModulesName string
 
 const (
-	ModulesCode_Course ModulesCode = 1
+	ModulesNameCourse ModulesName = "modules_name_course"
 )

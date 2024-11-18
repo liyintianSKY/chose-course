@@ -17,6 +17,7 @@ type Service struct {
 func InitServer(log *zap.Logger, db *gorm.DB, redis *redis.Client, nc *natsclient.NatsClient, httpListen string) *Service {
 	s := &Service{
 		baseServer: base_server.InitBaseServer(log, db, redis, nc, httpListen),
+		log:        log,
 	}
 	return s
 }

@@ -17,11 +17,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type NatsMessage struct {
-	FromServer consts.ModulesCode `json:"from_server"`
-	Data       interface{}        `json:"data"`
-}
-
 type NatsClient struct {
 	subs   cmap.ConcurrentMap[string, *nats.Subscription]
 	name   string
@@ -81,25 +76,34 @@ func (this_ *NatsClient) Close() {
 }
 
 // Publish 推送数据
-func (this_ *NatsClient) Publish(fromModule consts.ModulesCode, msgName string, msg interface{}) *errmsg.ErrMsg {
-	message := &NatsMessage{
-		FromServer: fromModule,
-		Data:       msg,
-	}
-	msgBytes, err := json.Marshal(message)
+func (this_ *NatsClient) Publish(fromModule consts.ModulesName, msgName string, data interface{}) *errmsg.ErrMsg {
+	msgBytes, err := json.Marshal(data)
 	if err != nil {
 		return errmsg.NewNormalErrorInfo("nats message marshal error", err.Error())
 	}
 
-	return errmsg.NewProtocolErrorInfo(this_.conn.Publish(msgName, msgBytes).Error())
+	msg := &nats.Msg{
+		Subject: msgName,
+		Data:    msgBytes,
+		Header:  make(nats.Header),
+	}
+	msg.Header.Set("From-Module", string(fromModule))
+
+	return errmsg.NewProtocolErrorInfo(this_.conn.PublishMsg(msg).Error())
 }
 
-func (this_ *NatsClient) Request(fromModule consts.ModulesCode, msgName string, req *NatsMessage) ([]byte, *errmsg.ErrMsg) {
-	msgBytes, err := json.Marshal(req)
+func (this_ *NatsClient) Request(fromModule consts.ModulesName, msgName string, data interface{}) ([]byte, *errmsg.ErrMsg) {
+	msgBytes, err := json.Marshal(data)
 	if err != nil {
 		return nil, errmsg.NewNormalErrorInfo("nats message marshal error", err.Error())
 	}
-	outMsg, e := this_.conn.Request(msgName, msgBytes, time.Second*10)
+	msg := &nats.Msg{
+		Subject: msgName,
+		Data:    msgBytes,
+		Header:  make(nats.Header),
+	}
+	msg.Header.Set("From-Module", string(fromModule))
+	outMsg, e := this_.conn.RequestMsg(msg, time.Second*10)
 	if e != nil {
 		return nil, errmsg.NewProtocolErrorInfo(e.Error())
 	}

@@ -36,7 +36,7 @@ func main() {
 	utils.Must(err)
 	db := initDB(cfg)
 	redisClient := initRedis(cfg)
-	natsClient := natsclient.NewNatsClient("Course", cfg.NATS.URL, log)
+	natsClient := natsclient.NewNatsClient("EDU", cfg.NATS.URL, log)
 	server := service.InitServer(log, db, redisClient, natsClient, cfg.Server.HttpListen)
 	server.RegisterSubModule()
 	server.Start()
