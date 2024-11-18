@@ -1,11 +1,10 @@
 package logger
 
 import (
-	"os"
-
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 )
 
 func InitLogger() *zap.Logger {
@@ -21,8 +20,11 @@ func InitLogger() *zap.Logger {
 
 func getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder   // 修改时间编码器
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 在日志文件中使用大写字母记录日志级别
+	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05.000") // 修改时间编码器
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder                           // 在日志文件中使用大写字母记录日志级别
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	encoderConfig.LineEnding = zapcore.DefaultLineEnding
+	encoderConfig.EncodeCaller = zapcore.FullCallerEncoder // 输出全局路径
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
