@@ -1,7 +1,7 @@
 package course_server
 
 import (
-	"chose-course/common/errmsg"
+	"edu-project/common/errmsg"
 	"github.com/nats-io/nats.go"
 )
 

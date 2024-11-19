@@ -1,7 +1,7 @@
 package errmsg
 
 import (
-	"chose-course/consts"
+	"edu-project/consts"
 	"errors"
 )
 

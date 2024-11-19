@@ -1,14 +1,13 @@
 package natsclient
 
 import (
-	"chose-course/common/cmap"
-	"chose-course/common/errmsg"
-	"chose-course/common/utils"
-	"chose-course/consts"
+	"edu-project/common/cmap"
+	"edu-project/common/errmsg"
+	"edu-project/common/utils"
+	"edu-project/consts"
 	"encoding/json"
 	"fmt"
 	"math"
-	"strings"
 	"sync/atomic"
 	"time"
 
@@ -136,18 +135,17 @@ type UserSubject struct {
 	MsgName      string
 }
 
-// SubscribeHandler 订阅Topic
-func (this_ *NatsClient) SubscribeHandler(subj string, f func(*nats.Msg)) {
+// QueueSubscribe 队列订阅
+func (this_ *NatsClient) QueueSubscribe(subj, queueName string, f func(*nats.Msg)) {
 	if _, ok := this_.subs.Get(subj); ok {
 		panic(fmt.Sprintf("subj [%s] had Subscribed", subj))
 	}
-	group := strings.ReplaceAll(subj, ">", "group")
-	this_.log.Info("SubscribeHandler", zap.String("urls", this_.urls), zap.String("subj", subj), zap.String("group", group))
+	this_.log.Info("SubscribeHandler", zap.String("urls", this_.urls), zap.String("subj", subj), zap.String("group", queueName))
 	cb := this_.f
 	if f != nil {
 		cb = f
 	}
-	sub, err := this_.conn.QueueSubscribe(subj, group, cb)
+	sub, err := this_.conn.QueueSubscribe(subj, queueName, cb)
 	utils.Must(err)
 	this_.subs.Set(subj, sub)
 }

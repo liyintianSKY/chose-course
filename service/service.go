@@ -1,9 +1,9 @@
 package service
 
 import (
-	"chose-course/base-server"
-	"chose-course/common/natsclient"
-	courseserver "chose-course/service/course-server"
+	"edu-project/base-server"
+	"edu-project/common/natsclient"
+	courseserver "edu-project/service/course-server"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

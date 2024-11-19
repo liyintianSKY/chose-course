@@ -1,12 +1,12 @@
 package course_server
 
 import (
-	baseServer "chose-course/base-server"
-	"chose-course/common/errmsg"
-	"chose-course/common/utils"
-	"chose-course/consts"
-	"chose-course/models"
-	"chose-course/service/course-server/api"
+	baseServer "edu-project/base-server"
+	"edu-project/common/errmsg"
+	"edu-project/common/utils"
+	"edu-project/consts"
+	"edu-project/models"
+	"edu-project/service/course-server/api"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"strings"
@@ -41,7 +41,9 @@ func (this_ *Service) routerModel() {
 }
 
 func (this_ *Service) routerFunc() {
-	this_.svc.SetMux("/findStudent", api.FindStudent)
+	this_.svc.SetMux("/queryCourse", api.QueryCourses)
+	this_.svc.SetMux("/findStudentToCourse", api.FindStudentToCourse)
+	this_.svc.SetMux("/findCourseToStudent", api.FindCourseToStudent)
 }
 
 func (this_ *Service) registerNatsMessage() {

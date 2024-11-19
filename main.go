@@ -1,12 +1,12 @@
 package main
 
 import (
-	"chose-course/common/logger"
-	"chose-course/common/natsclient"
-	"chose-course/common/utils"
-	"chose-course/config"
-	"chose-course/service"
 	"context"
+	"edu-project/common/logger"
+	"edu-project/common/natsclient"
+	"edu-project/common/utils"
+	"edu-project/config"
+	"edu-project/service"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"

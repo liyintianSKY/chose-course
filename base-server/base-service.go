@@ -1,8 +1,8 @@
 package base_server
 
 import (
-	"chose-course/common/natsclient"
-	"chose-course/common/utils"
+	"edu-project/common/natsclient"
+	"edu-project/common/utils"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
